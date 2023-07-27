@@ -1,78 +1,121 @@
-import { v4 as uuidv4 } from 'uuid';
-import Item from './item';
+interface Item {
+  name: string;
+  price: number;
+  description: string;
+}
 
-export default class User {
+class ItemManager {
+  private items: Item[];
 
-  constructor(
-  private _id: string = uuidv4(),
-  private _name: string,
-  private _age: number,
-  private _cart: Item[] = []
-  ){}
-
-  public get cart(): Item[] {
-    return this._cart;
-  }
-  public set cart(value: Item[]) {
-    this._cart = value;
-  }
-  public get age(): number {
-    return this._age;
-  }
-  public set age(value: number) {
-    this._age = value;
-  }
-  public get name(): string {
-    return this._name;
-  }
-  public set name(value: string) {
-    this._name = value;
-  }
-  public get id(): string {
-    return this._id;
-  }
-  public set id(value: string) {
-    this._id = value;
+  constructor() {
+    this.items = [
+      { name: 'Hacky Sack', price: 10, description: 'A fun sack that conveniently may be hackied' },
+      { name: 'Walking Stick', price: 20, description: 'Gandalf would be jealous' },
+      { name: 'Skateboard', price: 30, description: 'A wicked skidder' },
+      { name: 'Basketball', price: 30, description: 'A basketball' },
+      { name: 'Pogo Stick', price: 30, description: 'Bouncey bouncey' },
+      { name: 'Hat', price: 30, description: 'A hat' },
+      { name: 'Megadeath Shirt', price: 30, description: 'You know' },
+      { name: 'Mystery Box', price: 30, description: 'Who knows' },
+      { name: 'Wand', price: 30, description: 'Expecto Patronum' },
+      { name: 'Map to Atlantis', price: 30, description: 'Icelandic diary' },
+    ];
   }
 
-  addToCart(item: Item): void {
-    this.cart.push(item);
+  getItems(): Item[] {
+    return this.items;
   }
 
-  removeFromCart(item: Item): void {
-    this.cart = this.cart.filter((cartItem) => cartItem !== item);
+  addItem(item: Item): void {
+    this.items.push(item);
   }
 
-  removeQuantityFromCart(item: Item, user: User, quantity: number): void {
-    const itemIndex = user.cart.findIndex((cartItem) => cartItem.id === item.id);
-    if (itemIndex !== -1) {
-      const itemInCart = user.cart[itemIndex];
-      if (itemInCart) {
-        if (itemInCart.price < quantity) {
-          user.cart.splice(itemIndex, 1);
-        } else {
-          itemInCart.price -= quantity;
-        }
-      }
+  removeItem(item: Item): void {
+    const index = this.items.indexOf(item);
+    if (index !== -1) {
+      this.items.splice(index, 1);
     }
   }
 
-  cartTotal(): number {
-    let total = 0
-    for (let item of this.cart){
-        total += item.price
-    }
-    return total
+  removeAllItems(): void {
+    this.items = [];
+  }
+}
+
+// Create an instance of the ItemManager class
+const itemManager = new ItemManager();
+
+// Step 4: Create the function to add items to the HTML div
+function addItem() {
+  const input = document.getElementById('itemInput') as HTMLInputElement;
+  const itemName = input.value.trim();
+
+  // Check if the input is not empty and matches an item name in the list
+  const selectedItem = itemManager.getItems().find(item => item.name.toLowerCase() === itemName.toLowerCase());
+
+  if (selectedItem) {
+    const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
+    const newItemDiv = document.createElement('div');
+
+    const itemNameSpan = document.createElement('span');
+    itemNameSpan.textContent = `${selectedItem.name} - $${selectedItem.price}`;
+
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.value = '1'; // Default quantity is 1
+    quantityInput.addEventListener('input', () => updateTotalPrice(newItemDiv, selectedItem.price, quantityInput));
+
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.addEventListener('click', () => removeItem(newItemDiv));
+
+    newItemDiv.appendChild(itemNameSpan);
+    newItemDiv.appendChild(quantityInput);
+    newItemDiv.appendChild(removeButton);
+    itemListDiv.appendChild(newItemDiv);
+
+    // Calculate and display the initial total price
+    updateTotalPrice(newItemDiv, selectedItem.price, quantityInput);
   }
 
-  printCart(user: User): void {
-    console.log('Your cart:');
-    user.cart.forEach((item) => {
-      console.log(`- ${item.name}: $${item.price}`);
-    });
-  }
+  // Clear the input after adding the item
+  input.value = '';
+}
 
-  itemQuantityInCart(cart: Item[], item: Item): number {
-  return cart.filter((cartItem) => cartItem === item).length;
+// Step 5: Create the function to remove items from the HTML div
+function removeItem(itemDiv: HTMLDivElement) {
+  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
+  itemListDiv.removeChild(itemDiv);
 }
+
+function removeAllItems() {
+  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
+  while (itemListDiv.firstChild) {
+    itemListDiv.removeChild(itemListDiv.firstChild);
+  }
 }
+
+// Step 6: Create the function to update the total price when quantity changes
+function updateTotalPrice(itemDiv: HTMLDivElement, itemPrice: number, quantityInput: HTMLInputElement) {
+  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
+  const allItems = itemListDiv.querySelectorAll('div');
+
+  let totalPrice = 0;
+
+  allItems.forEach(item => {
+    const itemPriceStr = item.querySelector('span')?.textContent?.split(' - ')[1];
+    const itemPriceNum = parseFloat(itemPriceStr?.substring(1) || '0'); // Removing the "$" sign
+    const itemQuantity = parseInt(item.querySelector('input')?.value || '0');
+    totalPrice += itemPriceNum * itemQuantity;
+  });
+
+//   const totalPriceDiv = document.getElementById('totalPrice');
+//   if (totalPriceDiv.textContent === null){
+//      `Total Price: $${totalPrice.toFixed(2)}`;
+// }
+
+// Step 7: Create the function to check out and clear the cart
+function checkout() {
+  removeAllItems();
+  updateTotalPrice(document.createElement('div'), 0, document.createElement('input'));
+}}

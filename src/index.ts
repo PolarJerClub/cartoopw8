@@ -1,25 +1,13 @@
-import User from "./user";
-import Item from "./item"
+import { Item } from '../src/user'
 
-const user = new User('1', 'Joe Schmoe', 25);
+export const itemA = new Item('1', 'Hacky Sack', 10, 'A fun sack that conveniently may be hackied');
+export const itemB = new Item('2', 'Walking Stick', 20, 'Gandalf would be jealous');
+export const itemC = new Item('3', 'Skateboard', 30, 'A wicked skidder');
+export const itemD = new Item('4', 'Basketball', 30, 'A basketball');
+export const itemE = new Item('5', 'Pogo Stick', 30, 'Bouncey bouncey');
+export const itemF = new Item('6', 'Hat', 30, 'A hat');
+export const itemG = new Item('7', 'Megadeath Shirt', 30, 'You know');
+export const itemH = new Item('8', 'Mystery Box', 30, 'Who knows');
+export const itemI = new Item('9', 'Wand', 30, 'Expecto Patronum');
+export const itemJ = new Item('10', 'Map to Atlantis', 30, 'Icelandic diary');
 
-const itemA = new Item('1', 'Hacky Sack', 10, 'A fun sack that conveniently may be hackied');
-const itemB = new Item('2', 'Walking Stick', 20, 'Gandalf would be jealous');
-const itemC = new Item('3', 'Skateboard', 30, 'A wicked skidder');
-
-user.addToCart(itemA);
-user.printCart(user);
-console.log('Total:', user.cartTotal());
-
-user.addToCart(itemB);
-user.addToCart(itemC);
-user.printCart(user);
-console.log('Total:', user.cartTotal());
-
-user.removeFromCart(itemA);
-user.printCart(user)
-console.log('Total:', user.cartTotal());
-user.removeFromCart(itemB);
-user.removeFromCart(itemC);
-user.printCart(user);
-console.log('Total:', user.cartTotal());

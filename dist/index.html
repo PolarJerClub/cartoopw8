@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<meta name="Description" content="Enter your description here"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- <link rel="stylesheet" href="../dist/css/main.css"> -->
+<script src="user.js" defer></script>
+<title>OOP SHOPPING CART</title>
+</head>
+<body>
+    <nav>
+        <h1>Let's Go Shopping!</h1>
+    </nav>
+    <div class="container" style="padding-bottom: 50px;">
+        <header class="row" id="header-text">
+            <h1>Login to begin Shopping</h1>
+        </header>
+        <form>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <br>
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age" required>
+            <br>
+            <input type="button" value="Submit" onclick="displayGreeting()">
+        </form>
+        <div id="greeting-message"></div>
+        <script>
+            
+            function displayGreeting() {
+                var name = document.getElementById("name").value;
+                var age = document.getElementById("age").value;
+                var greeting = "Hello, " + name + "!";
+                document.getElementById("greeting-message").innerText = greeting;
+            }
+        </script>
+        <div style="float: right; margin-top: -155px;">
+            <aside>
+                <h1>The Shop</h1>
+                <ol>
+                <li></li>'Hacky Sack', 10, 'A fun sack that conveniently may be hackied'
+                <li></li>'Walking Stick', 20, 'Gandalf would be jealous'
+                <li></li>'Skateboard', 30, 'A wicked skidder'
+                <li></li>'Basketball', 30, 'A basketball'
+                <li></li>'Pogo Stick', 30, 'Bouncey bouncey'
+                <li></li>'Hat', 30, 'A hat'
+                <li></li>'Megadeath Shirt', 30, 'You know'
+                <li></li>'Mystery Box', 30, 'Who knows'
+                <li></li>'Wand', 30, 'Expecto Patronum'
+                <li></li>'Map to Atlantis', 30, 'Icelandic diary'
+                </ol>
+            </aside>
+        </div>
+        
+    </div>
+    <div>
+        <h1>Shopping Cart</h1>
+        <input type="text" id="itemInput" placeholder="Enter item">
+    <div id="buttonsContainer">
+        <button onclick="addItem()">Add</button>
+        <button onclick="checkout()">Checkout</button>
+        <button onclick="removeAllItems()">Remove All</button>
+    </div>
+    <div id="itemList"></div>
+    <div id="totalPrice"></div>
+
+    </div>
+    </div>
+
+    
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.min.js"></script>
+</body>
+</html>
