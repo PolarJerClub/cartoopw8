@@ -1,121 +1,111 @@
-interface Item {
-  name: string;
-  price: number;
-  description: string;
-}
+import { v4 as uuidv4 } from 'uuid';
+import Item from './Item';
+import Shop from './Shop';
 
-class ItemManager {
-  private items: Item[];
+class User {
+  private id: string;
+  private name: string;
+  private age: number;
+  private cart: Item[];
 
-  constructor() {
-    this.items = [
-      { name: 'Hacky Sack', price: 10, description: 'A fun sack that conveniently may be hackied' },
-      { name: 'Walking Stick', price: 20, description: 'Gandalf would be jealous' },
-      { name: 'Skateboard', price: 30, description: 'A wicked skidder' },
-      { name: 'Basketball', price: 30, description: 'A basketball' },
-      { name: 'Pogo Stick', price: 30, description: 'Bouncey bouncey' },
-      { name: 'Hat', price: 30, description: 'A hat' },
-      { name: 'Megadeath Shirt', price: 30, description: 'You know' },
-      { name: 'Mystery Box', price: 30, description: 'Who knows' },
-      { name: 'Wand', price: 30, description: 'Expecto Patronum' },
-      { name: 'Map to Atlantis', price: 30, description: 'Icelandic diary' },
-    ];
+  constructor(name: string, age: number) {
+    this.id = uuidv4();
+    this.name = name;
+    this.age = age;
+    this.cart = [];
   }
 
-  getItems(): Item[] {
-    return this.items;
+  public getId(): string {
+    return this.id;
   }
 
-  addItem(item: Item): void {
-    this.items.push(item);
+  public getName(): string {
+    return this.name;
   }
 
-  removeItem(item: Item): void {
-    const index = this.items.indexOf(item);
+  public getAge(): number {
+    return this.age;
+  }
+
+  public getCart(): Item[] {
+    return this.cart;
+  }
+
+  public addToCart(item: Item): void {
+    this.cart.push(item);
+  }
+
+  public removeFromCart(item: Item): void {
+    this.cart = this.cart.filter((cartItem) => cartItem.getId() !== item.getId());
+  }
+
+  public removeQuantityFromCart(item: Item, quantity: number): void {
+    const index = this.cart.findIndex((cartItem) => cartItem.getId() === item.getId());
+
     if (index !== -1) {
-      this.items.splice(index, 1);
+      const cartItem = this.cart[index];
+      cartItem.price -= quantity;
+      if (cartItem.price <= 0) {
+        this.cart.splice(index, 1);
+      }
     }
   }
 
-  removeAllItems(): void {
-    this.items = [];
+  public cartTotal(): number {
+    return this.cart.reduce((total, item) => total + item.getPrice, 0);
+  }
+
+  public static loginUser(event: Event): void {
+    event.preventDefault();
+    const nameInput = document.getElementById('name') as HTMLInputElement;
+    const ageInput = document.getElementById('age') as HTMLInputElement;
+
+    const name = nameInput.value.trim();
+    const age = parseInt(ageInput.value, 10);
+
+    if (name && !isNaN(age)) {
+      User.myUser = new User(name, age);
+      const shop = new Shop();
+      shop.showItems();
+      shop.updateCart();
+    } else {
+      alert('Please enter a valid name and age.');
+    }
+  }
+
+  public cartHTMLElement(): HTMLElement {
+    const cartDiv = document.createElement('div');
+
+    if (this.cart.length === 0) {
+      cartDiv.textContent = 'The cart is empty.';
+    } else {
+      this.cart.forEach((item) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.innerHTML = `
+          <p>Name: ${item.getName()}</p>
+          <p>Price: ${item.getPrice}</p>
+          <p>Description: ${item.getDescription()}</p>
+          <button data-item-id="${item.getId()}" data-action="remove-one">Remove One</button>
+          <button data-item-id="${item.getId()}" data-action="remove-all">Remove All</button>
+        `;
+        cartDiv.appendChild(itemDiv);
+      });
+    }
+
+    return cartDiv;
+  }
+
+  public static myUser: User | undefined;
+
+  public printCart(): void {
+    console.log(`${this.name}'s Cart:`);
+    this.cart.forEach((item, index) => {
+      console.log(`Item ${index + 1}:`);
+      console.log(`  Name: ${item.getName()}`);
+      console.log(`  Price: ${item.getPrice}`);
+      console.log(`  Description: ${item.getDescription()}`);
+    });
   }
 }
 
-// Create an instance of the ItemManager class
-const itemManager = new ItemManager();
-
-// Step 4: Create the function to add items to the HTML div
-function addItem() {
-  const input = document.getElementById('itemInput') as HTMLInputElement;
-  const itemName = input.value.trim();
-
-  // Check if the input is not empty and matches an item name in the list
-  const selectedItem = itemManager.getItems().find(item => item.name.toLowerCase() === itemName.toLowerCase());
-
-  if (selectedItem) {
-    const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
-    const newItemDiv = document.createElement('div');
-
-    const itemNameSpan = document.createElement('span');
-    itemNameSpan.textContent = `${selectedItem.name} - $${selectedItem.price}`;
-
-    const quantityInput = document.createElement('input');
-    quantityInput.type = 'number';
-    quantityInput.value = '1'; // Default quantity is 1
-    quantityInput.addEventListener('input', () => updateTotalPrice(newItemDiv, selectedItem.price, quantityInput));
-
-    const removeButton = document.createElement('button');
-    removeButton.textContent = 'Remove';
-    removeButton.addEventListener('click', () => removeItem(newItemDiv));
-
-    newItemDiv.appendChild(itemNameSpan);
-    newItemDiv.appendChild(quantityInput);
-    newItemDiv.appendChild(removeButton);
-    itemListDiv.appendChild(newItemDiv);
-
-    // Calculate and display the initial total price
-    updateTotalPrice(newItemDiv, selectedItem.price, quantityInput);
-  }
-
-  // Clear the input after adding the item
-  input.value = '';
-}
-
-// Step 5: Create the function to remove items from the HTML div
-function removeItem(itemDiv: HTMLDivElement) {
-  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
-  itemListDiv.removeChild(itemDiv);
-}
-
-function removeAllItems() {
-  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
-  while (itemListDiv.firstChild) {
-    itemListDiv.removeChild(itemListDiv.firstChild);
-  }
-}
-
-// Step 6: Create the function to update the total price when quantity changes
-function updateTotalPrice(itemDiv: HTMLDivElement, itemPrice: number, quantityInput: HTMLInputElement) {
-  const itemListDiv = document.getElementById('itemList') as HTMLDivElement;
-  const allItems = itemListDiv.querySelectorAll('div');
-
-  let totalPrice = 0;
-
-  allItems.forEach(item => {
-    const itemPriceStr = item.querySelector('span')?.textContent?.split(' - ')[1];
-    const itemPriceNum = parseFloat(itemPriceStr?.substring(1) || '0'); // Removing the "$" sign
-    const itemQuantity = parseInt(item.querySelector('input')?.value || '0');
-    totalPrice += itemPriceNum * itemQuantity;
-  });
-
-//   const totalPriceDiv = document.getElementById('totalPrice');
-//   if (totalPriceDiv.textContent === null){
-//      `Total Price: $${totalPrice.toFixed(2)}`;
-// }
-
-// Step 7: Create the function to check out and clear the cart
-function checkout() {
-  removeAllItems();
-  updateTotalPrice(document.createElement('div'), 0, document.createElement('input'));
-}}
+export default User;
